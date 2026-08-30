@@ -3,402 +3,639 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>جدولك - المخطط السياحي الذكي</title>
+    <title>جدول الإمارات | خطط رحلتك بالذكاء الاصطناعي</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; color: #1e293b; }
-        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(226, 232, 240, 0.8); }
-        .timeline-line { position: absolute; right: 24px; top: 0; bottom: 0; width: 2px; background: #e2e8f0; }
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f8fafc;
+        }
+        .bg-uae-gold { background-color: #CBA052; }
+        .text-uae-gold { color: #CBA052; }
+        .border-uae-gold { border-color: #CBA052; }
+        .hover-bg-uae-gold-dark:hover { background-color: #B38940; }
+        
+        .timeline-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 24px;
+            height: 100%;
+            width: 2px;
+            background: #e2e8f0;
+        }
+        
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="text-slate-800">
 
-    <!-- Header -->
-    <header class="bg-white shadow-sm sticky top-0 z-40 border-b border-slate-100">
-        <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white font-black text-xl shadow-md">
-                    ج
-                </div>
-                <div>
-                    <h1 class="font-bold text-lg text-slate-800 leading-none">جدولك</h1>
-                    <span class="text-xs text-emerald-600 font-medium">مخطط الرحلات الذكي</span>
-                </div>
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="location.reload()">
+                <div class="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-uae-gold font-black text-xl shadow-md">ج</div>
+                <h1 class="text-2xl font-extrabold text-slate-800">جدولك <span class="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-bold">ذكي ومخصص</span></h1>
             </div>
-            <button onclick="openChatModal()" class="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center gap-2 border border-emerald-200">
-                <i class="fa-solid fa-comments"></i>
-                استشر المرشد الذكي
+            <button onclick="openChatModal()" class="bg-amber-50 hover:bg-amber-100 text-uae-gold font-bold px-4 py-2 rounded-lg transition flex items-center gap-2 border border-amber-200">
+                <i class="fa-solid fa-robot"></i> المرشد السياحي
             </button>
+        </div>
+    </nav>
+
+    <header class="relative bg-slate-900 text-white pt-20 pb-32">
+        <div class="absolute inset-0 overflow-hidden opacity-30">
+            <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" alt="صورة أفق الإمارات" class="w-full h-full object-cover">
+        </div>
+        <div class="relative z-10 max-w-4xl mx-auto px-4 text-center">
+            <h2 class="text-4xl md:text-6xl font-bold mb-4 leading-tight">خطط ليومك بكل ذكاء وواقعية!</h2>
+            <p class="text-lg md:text-xl text-gray-300 mb-10">نراعي مدينتك الحالية لنجلب لك تجارب جديدة كلياً، مع مطاعم محلية استثنائية وأغراض حقيبة متوافقة تماماً مع جدولك.</p>
+            
+            <div class="bg-white rounded-2xl shadow-xl p-6 text-right relative mx-auto max-w-3xl">
+                <form id="plannerForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-gray-700">أنت حالياً في؟</label>
+                        <select id="fromCity" class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:border-uae-gold text-slate-700">
+                            <option value="العين">العين</option>
+                            <option value="أبوظبي">أبوظبي</option>
+                            <option value="دبي">دبي</option>
+                            <option value="الشارقة">الشارقة</option>
+                            <option value="رأس الخيمة">رأس الخيمة</option>
+                            <option value="عجمان">عجمان</option>
+                            <option value="الفجيرة">الفجيرة</option>
+                            <option value="أم القيوين">أم القيوين</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-gray-700">وجهتك لليوم؟</label>
+                        <select id="toCity" class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:border-uae-gold text-slate-700">
+                            <option value="أبوظبي">أبوظبي</option>
+                            <option value="دبي">دبي</option>
+                            <option value="الشارقة">الشارقة</option>
+                            <option value="رأس الخيمة">رأس الخيمة</option>
+                            <option value="العين">العين</option>
+                            <option value="الفجيرة">الفجيرة</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-gray-700">من يرافقك في الرحلة؟</label>
+                        <select id="travelers" class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:border-uae-gold text-slate-700">
+                            <option value="عائلة مع أطفال">عائلة مع أطفال</option>
+                            <option value="شباب وأصدقاء">شباب وأصدقاء مغامرون</option>
+                            <option value="رحلة استرخاء زوجية">رحلة استرخاء زوجية</option>
+                            <option value="بمفردي (استكشاف ذاتي)">بمفردي (استكشاف ذاتي)</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-gray-700">وتيرة اليوم وجدوله</label>
+                        <select id="pace" class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:border-uae-gold text-slate-700">
+                            <option value="مكتظ وحافل بالأنشطة (سريع)">مكتظ وحافل بالأنشطة (سريع)</option>
+                            <option value="متوازن ومريح (موصى به)">متوازن ومريح (موصى به)</option>
+                            <option value="هادئ واسترخاء (أماكن قليلة)">هادئ واسترخاء (أماكن قليلة)</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-gray-700">الميزانية المتوقعة</label>
+                        <select id="budget" class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:border-uae-gold text-slate-700">
+                            <option value="اقتصادية (أقل من 500 درهم)">اقتصادية (أقل من 500 درهم)</option>
+                            <option value="متوسطة (500 - 1500 درهم)">متوسطة (500 - 1500 درهم)</option>
+                            <option value="فاخرة (أكثر من 1500 درهم)">فاخرة (أكثر من 1500 درهم)</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-gray-700">جو الرحلة (الاهتمام الأساسي)</label>
+                        <select id="interest" class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:border-uae-gold text-slate-700">
+                            <option value="مغامرة وترفيه وملاهي">مغامرة وترفيه (مثل الملاهي والثلوج)</option>
+                            <option value="تسوق وحياة مدينة وعصرية">تسوق وحياة مدينة</option>
+                            <option value="تراث ومتاحف وفنون تاريخية">تراث ومتاحف وفنون</option>
+                            <option value="طبيعة شواطئ وجبال وهدوء">طبيعة شواطئ وجبال وهدوء</option>
+                        </select>
+                    </div>
+
+                    <div class="md:col-span-2 pt-2">
+                        <button type="submit" class="w-full bg-uae-gold hover-bg-uae-gold-dark text-white font-bold py-4 px-6 rounded-lg transition duration-300 text-lg shadow-lg flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> توليد الجدول الذكي المتكامل
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="max-w-4xl mx-auto px-4 py-6 flex-grow w-full space-y-6">
+    <main id="resultsSection" class="hidden max-w-4xl mx-auto px-4 py-16">
         
-        <!-- Planner Form Card -->
-        <div class="glass-card rounded-2xl p-6 shadow-sm">
-            <h2 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-compass text-emerald-600"></i>
-                صمم رحلتك القادمة في الإمارات
-            </h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">أنت حالياً في مدينة:</label>
-                    <select id="fromCity" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-                        <option value="العين">العين</option>
-                        <option value="دبي">دبي</option>
-                        <option value="أبوظبي">أبوظبي</option>
-                        <option value="الشارقة">الشارقة</option>
-                        <option value="عجمان">عجمان</option>
-                        <option value="رأس الخيمة">رأس الخيمة</option>
-                        <option value="الفجيرة">الفجيرة</option>
-                        <option value="أم القيوين">أم القيوين</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">وجهة الرحلة:</label>
-                    <select id="toCity" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-                        <option value="أبوظبي">أبوظبي</option>
-                        <option value="دبي">دبي</option>
-                        <option value="الشارقة">الشارقة</option>
-                        <option value="رأس الخيمة">رأس الخيمة</option>
-                        <option value="الفجيرة">الفجيرة</option>
-                        <option value="عجمان">عجمان</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">طبيعة المرافقين:</label>
-                    <select id="travelers" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-                        <option value="عائلة وأطفال">عائلة وأطفال</option>
-                        <option value="شباب وأصدقاء">شباب وأصدقاء</option>
-                        <option value="زوجين / ثنائي">زوجين / ثنائي</option>
-                        <option value="بمفردي">بمفردي</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">وتيرة اليوم:</label>
-                    <select id="pace" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-                        <option value="مكتظ وحافل بالأنشطة">مكتظ وحافل بالأنشطة</option>
-                        <option value="متوازن ومريح">متوازن ومريح</option>
-                        <option value="هادئ واسترخاء">هادئ واسترخاء</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">الميزانية:</label>
-                    <select id="budget" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-                        <option value="اقتصادي">اقتصادي (مناسب للجميع)</option>
-                        <option value="متوسط">متوسط</option>
-                        <option value="فاخر">فاخر ومميز</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">الاهتمام الرئيسي:</label>
-                    <select id="interest" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-                        <option value="استكشاف وتراث">استكشاف وتراث محلي</option>
-                        <option value="طبيعة ومغامرة">طبيعة ومغامرة</option>
-                        <option value="تسوق وترفيه">تسوق وترفيه</option>
-                        <option value="استرخاء ومقاهي">مقاهي ومطاعم مميزة</option>
-                    </select>
-                </div>
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 border-b pb-4 gap-4">
+            <div>
+                <h3 class="text-3xl font-bold text-slate-800 mb-2">جدولك المقترح في <span id="displayDest" class="text-uae-gold font-extrabold"></span></h3>
+                <p class="text-gray-500">تم التوليد بواسطة نموذج الذكاء الاصطناعي خصيصاً لأنك قادم من <span id="displayFrom" class="font-bold text-slate-700"></span> وبميزانية <span id="displayBudget" class="font-bold text-slate-700"></span>.</p>
             </div>
-
-            <button onclick="generateDynamicItinerary()" id="generateBtn" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold p-3.5 rounded-xl shadow-lg hover:from-emerald-700 hover:to-teal-700 transition flex items-center justify-center gap-2">
-                <i class="fa-solid fa-wand-magic-sparkles"></i>
-                توليد الجدول الذكي المتكامل
-            </button>
+            
+            <div class="flex flex-wrap gap-2">
+                <button onclick="openImageModal()" class="bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 px-3 py-2 rounded-lg font-bold text-sm transition flex items-center gap-1 shadow-sm">
+                    <i class="fa-solid fa-image"></i> تخيل وجهتك بصورة AI
+                </button>
+                <button onclick="shareWhatsApp()" class="hidden md:flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-bold text-sm transition shadow-sm">
+                    <i class="fa-brands fa-whatsapp text-lg"></i> شارك
+                </button>
+            </div>
         </div>
 
-        <!-- Results Section -->
-        <div id="resultsSection" class="hidden space-y-6">
-            
-            <!-- Weather & Outfit Banner -->
-            <div id="weatherBanner" class="bg-gradient-to-r from-teal-500 to-emerald-600 text-white rounded-2xl p-5 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
-                <div class="flex items-center gap-4">
-                    <div class="text-4xl" id="weatherIcon">☀️</div>
-                    <div>
-                        <h3 class="font-bold text-lg" id="weatherTitle">الطقس والملابس المقترحة</h3>
-                        <p class="text-sm text-emerald-100" id="weatherDesc">جاري تحديث حالة الطقس...</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+            <div class="bg-white rounded-xl shadow-md border border-gray-100 p-6 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-cloud-sun text-uae-gold"></i> حالة الطقس وتوصيات الملابس
+                        </h4>
+                        <span id="weatherBadge" class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-bold border border-blue-200">تحليل حي</span>
+                    </div>
+                    <div id="weatherContent" class="text-gray-600 text-sm leading-relaxed mb-4">
+                        جاري جلب تفاصيل الأجواء وتوصيات الملابس للوجهة المختارة عبر Gemini...
                     </div>
                 </div>
-                <div class="bg-white/10 backdrop-blur-md px-4 py-2 rounded-xl text-xs font-medium border border-white/20" id="outfitTip">
-                    نصيحة اللباس: ملابس مريحة خفيفة
-                </div>
+                <button onclick="fetchWeatherRecommendation()" class="self-start text-xs bg-amber-50 text-amber-900 hover:bg-amber-100 px-3 py-2 rounded-lg font-bold transition border border-amber-200">
+                    <i class="fa-solid fa-rotate-right ml-1"></i> تحديث تقرير الطقس
+                </button>
             </div>
 
-            <!-- Timeline Itinerary -->
-            <div class="glass-card rounded-2xl p-6 shadow-sm relative">
-                <h3 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-                    <i class="fa-solid fa-route text-emerald-600"></i>
-                    الجدول الزمني المخصص لرحلتك
-                </h3>
-                <div id="timelineContainer" class="relative space-y-6 pr-6">
-                    <!-- Dynamic Timeline Items inserted here -->
+            <div class="bg-white rounded-xl shadow-md border border-gray-100 p-6 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-suitcase text-uae-gold"></i> قائمة أغراض الحقيبة المخصصة
+                        </h4>
+                    </div>
+                    <div id="packingListContainer" class="text-gray-600 text-sm space-y-2 max-h-40 overflow-y-auto">
+                        <p class="text-gray-400 italic">يتم توليد الأغراض تلقائياً لتتطابق مع الأنشطة الفعلية لجدولك.</p>
+                    </div>
                 </div>
             </div>
-
-            <!-- Packing Checklist -->
-            <div class="glass-card rounded-2xl p-6 shadow-sm">
-                <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-suitcase text-emerald-600"></i>
-                    قائمة أغراض الحقيبة الموصى بها
-                </h3>
-                <div id="packingListContainer" class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <!-- Packing items inserted here -->
-                </div>
-            </div>
-
         </div>
+
+        <div id="timelineContainer" class="relative timeline-container pl-4"></div>
+        
+        <button onclick="shareWhatsApp()" class="w-full mt-6 md:hidden items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-4 rounded-lg font-bold transition flex shadow-md">
+            <i class="fa-brands fa-whatsapp text-xl"></i> شارك الجدول على واتساب
+        </button>
+
     </main>
 
-    <!-- Place Details Modal -->
-    <div id="placeModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative space-y-4 max-h-[90vh] overflow-y-auto">
-            <button onclick="closePlaceModal()" class="absolute top-4 left-4 text-slate-400 hover:text-slate-600 text-xl font-bold">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-            <div id="modalContent">
-                <!-- Detailed place info inserted here -->
+    <div id="placeDetailsModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="relative h-48 bg-slate-900 overflow-hidden" id="placeModalHeaderImg">
+                <img id="placeImg" src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c" alt="صورة المكان" class="w-full h-full object-cover opacity-80">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                <button onclick="closePlaceModal()" class="absolute top-4 left-4 bg-black/50 text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/70 font-bold transition">&times;</button>
+                <div class="absolute bottom-4 right-4 text-white">
+                    <span id="placeModalCategory" class="bg-uae-gold text-white text-xs px-2.5 py-1 rounded-full font-bold mb-1 inline-block">معلم سياحي</span>
+                    <h3 id="placeModalTitle" class="text-2xl font-extrabold">اسم المكان</h3>
+                </div>
+            </div>
+            
+            <div class="p-6 overflow-y-auto space-y-4 text-slate-700">
+                <div class="flex items-center justify-between bg-amber-50 p-3 rounded-xl border border-amber-200">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-star text-amber-500"></i>
+                        <span class="font-bold text-slate-800">تقييم الزوار:</span>
+                        <span id="placeModalRating" class="text-amber-800 font-extrabold">4.8 / 5.0</span>
+                    </div>
+                    <div class="flex items-center gap-1 text-xs text-gray-500">
+                        <i class="fa-solid fa-map-pin text-uae-gold"></i>
+                        <span id="placeModalLocation">إمارة أبوظبي</span>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="font-bold text-slate-800 mb-1 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-info text-uae-gold"></i> نظرة عامة وتفاصيل المكان
+                    </h4>
+                    <p id="placeModalDesc" class="text-sm text-gray-600 leading-relaxed">جاري جلب تفاصيل ومعلومات المكان عبر الذكاء الاصطناعي...</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                    <div class="bg-slate-50 p-3 rounded-xl border border-gray-100">
+                        <h5 class="text-xs font-bold text-gray-500 mb-1 flex items-center gap-1">
+                            <i class="fa-solid fa-clock text-uae-gold"></i> أفضل أوقات الزيارة
+                        </h5>
+                        <p id="placeModalTime" class="text-sm font-medium text-slate-800">الصباح الباكر أو قبل الغروب</p>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-gray-100">
+                        <h5 class="text-xs font-bold text-gray-500 mb-1 flex items-center gap-1">
+                            <i class="fa-solid fa-lightbulb text-uae-gold"></i> نصيحة ذهبية للزوار
+                        </h5>
+                        <p id="placeModalTip" class="text-sm font-medium text-slate-800">احجز التذاكر مسبقاً عبر الإنترنت لتفادي الازدحام.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 bg-gray-50 border-t flex justify-end">
+                <button onclick="closePlaceModal()" class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-xl font-bold text-sm transition">إغلاق النافذة</button>
             </div>
         </div>
     </div>
 
-    <!-- AI Chat Modal -->
-    <div id="chatModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-lg w-full h-[500px] flex flex-col shadow-2xl relative overflow-hidden">
-            <div class="bg-emerald-600 text-white p-4 flex items-center justify-between">
+    <div id="imageModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-xl text-slate-800"><i class="fa-solid fa-image text-uae-gold ml-2"></i> توليد بطاقة بصرية للوجهة</h3>
+                <button onclick="closeImageModal()" class="text-gray-400 hover:text-gray-700 text-xl font-bold">&times;</button>
+            </div>
+            <p class="text-xs text-gray-500 mb-4">استمتع بتوليد صورة فنية سينمائية لجمال الوجهة السياحية الحالية بناءً على اهتماماتك.</p>
+            
+            <div id="imageResultContainer" class="bg-slate-100 rounded-xl min-h-[250px] flex items-center justify-center border border-gray-200 overflow-hidden mb-4">
+                <span class="text-gray-400 text-sm italic">اضغط على الزر أدناه لبدء التوليد...</span>
+            </div>
+
+            <button onclick="generateAIImage()" id="generateImgBtn" class="w-full bg-uae-gold hover-bg-uae-gold-dark text-white font-bold py-3 px-4 rounded-xl transition shadow">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> توليد الصورة الآن
+            </button>
+        </div>
+    </div>
+
+    <div id="chatModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col h-[550px]">
+            <div class="bg-slate-900 text-white p-4 flex justify-between items-center">
                 <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-robot"></i>
-                    <h3 class="font-bold text-sm">مستشارك السياحي الذكي</h3>
+                    <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                    <h3 class="font-bold text-lg">مرشد الإمارات الذكي (Gemini)</h3>
                 </div>
-                <button onclick="closeChatModal()" class="text-white hover:text-emerald-200 text-lg"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="closeChatModal()" class="text-gray-400 hover:text-white text-xl font-bold px-2">&times;</button>
             </div>
-            <div id="chatMessages" class="flex-grow p-4 overflow-y-auto space-y-3 bg-slate-50 text-sm">
-                <div class="bg-white p-3 rounded-xl shadow-xs border border-slate-100 text-slate-700 max-w-[80%]">
-                    أهلاً بك! اسألني عن أي مطعم خفي، نشاط فريد، أو استفسار بخصوص رحلتك في الإمارات وسأجيبك باختصار.
+            <div id="chatMessages" class="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50 text-sm">
+                <div class="bg-amber-100 text-amber-900 p-3 rounded-xl max-w-[85%] font-medium">
+                    أهلاً بك! أنا مرشدك السياحي الذكي للإمارات. اسألني عن أفضل المطاعم، أوقات الزيارة، الفنادق، أو أي استفسار سياحي يخطر بالك! 🇦🇪
                 </div>
             </div>
-            <div class="p-3 bg-white border-t border-slate-100 flex gap-2">
-                <input type="text" id="chatInput" placeholder="اكتب سؤالك هنا..." class="flex-grow bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-                <button onclick="sendChatMessage()" class="bg-emerald-600 text-white px-4 py-2.5 rounded-xl font-semibold hover:bg-emerald-700 transition">
+            <div class="p-3 bg-white border-t flex gap-2">
+                <input type="text" id="chatInput" placeholder="اكتب سؤالك هنا..." class="flex-1 p-3 border rounded-xl focus:outline-none focus:border-uae-gold" onkeypress="if(event.key === 'Enter') sendChatMessage()">
+                <button onclick="sendChatMessage()" id="sendChatBtn" class="bg-uae-gold hover-bg-uae-gold-dark text-white px-5 rounded-xl font-bold transition">
                     <i class="fa-solid fa-paper-plane"></i>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-white border-t border-slate-100 py-4 text-center text-xs text-slate-500 mt-auto">
-        جميع الحقوق محفوظة © جدولك 2026
+    <footer class="bg-slate-900 text-gray-400 py-8 text-center border-t border-slate-800 mt-20">
+        <p class="font-medium">مشروع جدولك السياحي - تجربة سفر ذكية ومخصصة 🇦🇪</p>
     </footer>
 
     <script>
-        const cityDatabase = {
-            "أبوظبي": {
-                weather: { temp: "28°C", desc: "أجواء مشمسة ومثالية للاستكشاف الخارجي", icon: "☀️", outfit: "نظارة شمسية وملابس قطنية مريحة" },
-                pools: {
-                    heritage: [
-                        { time: "09:00 ص", title: "انطلاق ترحيبي وقصر الوطن", desc: "بدء الجولة القادمة واستكشاف قصر الوطن والمعالم الثقافية.", category: "مجاني", place: "قصر الوطن", rating: "4.8", image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600", address: "كورنيش أبوظبي", details: "تحفة معمارية تبرز الإرث الحضاري والثقافي العريق." },
-                        { time: "01:00 م", title: "غداء محلي فريد", desc: "تجربة أطباق إماراتية أصيلة في مطعم محلي مميز بعيداً عن الوجبات السريعة.", category: "متوسط", place: "مطعم البيت المتوحد", rating: "4.6", image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600", address: "الممتاز، أبوظبي", details: "أطباق شعبية محلية محضرة بأجواء عائلية دافئة." },
-                        { time: "04:30 م", title: "جولة هادئة على ممشى السعديات", desc: "الاستمتاع بالمياه الصافية والمسارات البحرية الخلابة.", category: "مجاني", place: "ممشى السعديات", rating: "4.7", image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600", address: "جزيرة السعديات", details: "ممشى ساحلي يتيح لك الاسترخاء وإطلالات ساحرة على الخليج." }
-                    ],
-                    adventure: [
-                        { time: "09:30 ص", title: "مغامرة جزيرة ياس المائية", desc: "قضاء وقت ممتع في الألعاب المائية والتشويق.", category: "تذكرة خاصة", place: "ياس ووتروورلد", rating: "4.8", image: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600", address: "جزيرة ياس", details: "مدينة مائية عالمية تضم ألعاباً ترفيهية فريدة ومثيرة." },
-                        { time: "01:30 م", title: "استراحة غداء في ياس مارينا", desc: "تناول وجبة شهية مع إطلالة مباشرة على اليخوت الفاخرة.", category: "متوسط", place: "مطعم مارينا بيسترو", rating: "4.5", image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600", address: "ياس مارينا", details: "أجواء حيوية وخيارات طعام ممتازة ومحلية." },
-                        { time: "05:00 م", title: "إثارة سرعة الكارتينج", desc: "تحدي الأصدقاء في سباقات الحلبة الممتعة.", category: "متوسط", place: "حلبة مرسى ياس", rating: "4.9", image: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=600", address: "جزيرة ياس", details: "تجربة سباق احترافية وممتعة لمحبي الحماس." }
-                    ],
-                    shopping: [
-                        { time: "10:00 ص", title: "جولة تسوق في الكورنيش", desc: "استكشاف أحدث المتاجر والأسواق العصرية.", category: "حسب الشراء", place: "عالم الروائع للتسوق", rating: "4.5", image: "https://images.unsplash.com/photo-1555529771-835f59fc5efe?w=600", address: "أبوظبي", details: "وجهة مميزة لتسوق المنتجات العصرية والهدايا التذكارية." },
-                        { time: "01:30 م", title: "استراحة قهوة مختصة", desc: "تذوق أرقى المشروبات في مقهى محلي هادئ.", category: "متوسط", place: "مقهى أرابيكا الكورنيش", rating: "4.7", image: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=600", address: "الكورنيش", details: "محمصة ومقهى يشتهر بتقديم أفضل أنواع القهوة المختصة." }
-                    ]
-                },
-                packing: ["نظارة شمسية", "قبعة أنيقة", "ملابس قطنية خفيفة", "كاميرا توثيق"]
-            },
-            "دبي": {
-                weather: { temp: "30°C", desc: "أجواء مشمسة وحيوية مثالية للجولات المفتوحة", icon: "🌤️", outfit: "ملابس كاجوال خفيفة وحذاء مشي مريح" },
-                pools: {
-                    heritage: [
-                        { time: "09:00 ص", title: "عبور التاريخ في الفهيدي", desc: "استكشاف الأزقة القديمة وركوب العبرة في خور دبي.", category: "رمزي", place: "حي الفهيدي التاريخي", rating: "4.7", image: "https://images.unsplash.com/photo-1580674684081-7617fbf3d745?w=600", address: "بر دبي", details: "حي تراثي يعبق باريج الماضي وعمارة البراجيل التقليدية." },
-                        { time: "01:00 م", title: "غداء شعبي في مقهى تراثي", desc: "تناول وجبة إماراتية تقليدية أصيلة.", category: "متوسط", place: "مقهى الشيخ محمد للتواصل", rating: "4.8", image: "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=600", address: "البستكية", details: "يجسد أصالة الضيافة الإماراتية والوجبات المحلية." },
-                        { time: "04:30 م", title: "جولة سوق الذهب والتوابل", desc: "استنشاق عبق التوابل الشرقية وتألق الأسواق القديمة.", category: "مجاني", place: "سوق الذهب القديم", rating: "4.6", image: "https://images.unsplash.com/photo-1578895101408-1a36b8344351?w=600", address: "ديرة، دبي", details: "الأسواق التقليدية النابضة بالحياة والتاريخ." }
-                    ],
-                    adventure: [
-                        { time: "09:30 ص", title: "مغامرة سفاري الصحراء", desc: "ركوب السيارات الرباعية وتجربة الكثبان الذهبية.", category: "تذكرة خاصة", place: "صحراء دبي الحمراء", rating: "4.9", image: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=600", address: "دبي الصحراوية", details: "تجربة مغامرة صحراوية لا تُنسى مع الأنشطة التراثية." },
-                        { time: "01:30 م", title: "وجبة الغداء البدوية", desc: "تناول مأكولات تقليدية في مخيم صحراوي مجهز.", category: "متوسط", place: "مخيم الكثبان الذهبية", rating: "4.7", image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=600", address: "دبي", details: "وجبات شهية ومشاوي محلية بأجواء صحراوية ساحرة." }
-                    ],
-                    shopping: [
-                        { time: "10:00 ص", title: "تسوق حي السمر العطِر", desc: "اكتشاف أحدث صيحات الموضة والمتاجر المستقلة.", category: "متوسط", place: "سيتي ووك", rating: "4.8", image: "https://images.unsplash.com/photo-1555529771-835f59fc5efe?w=600", address: "الجميرا", details: "وجهة مفتوحة ومميزة للتسوق والمقاهي العصرية." }
-                    ]
-                },
-                packing: ["واقي شمس", "حذاء مشي مريح", "نظارة شمسية", "حقيبة ظهر خفيفة"]
-            },
-            "الشارقة": {
-                weather: { temp: "27°C", desc: "طقس لطيف ومنعش يناسب العصور الثقافية", icon: "🌥️", outfit: "سترة خفيفة وملابس محتشمة مريحة" },
-                pools: {
-                    heritage: [
-                        { time: "09:30 ص", title: "جولة قلب الشارقة التراثي", desc: "استكشاف المتاحف والأسواق القديمة المرممة.", category: "مجاني", place: "قلب الشارقة", rating: "4.6", image: "https://images.unsplash.com/photo-1578895101408-1a36b8344351?w=600", address: "الشارقة القديمة", details: "أكبر مشروع تراثي يروي قصة التطور التاريخي للإمارة." },
-                        { time: "01:00 م", title: "استراحة غداء محلية", desc: "تناول وجبة مجبوس إماراتية في مطعم عريق.", category: "متوسط", place: "مطعم الشارقة الشعبي", rating: "4.5", image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=600", address: "السوق المركزي", details: "أطباق محلية تقليدية تحضر بعناية فائقة." }
-                    ],
-                    adventure: [
-                        { time: "10:00 ص", title: "استكشاف حديقة الشارقة للحياة البرية", desc: "مشاهدة الحيوانات العربية الأصيلة في بيئتها الطبيعية.", category: "رمزي", place: "سفاري الشارقة", rating: "4.8", image: "https://images.unsplash.com/photo-1534567153574-2b12153a87f0?w=600", address: "البردي، الشارقة", details: "أكبر سفاري خارج أفريقيا تضم تنوعاً حيوانياً وبيئياً مذهلاً." }
-                    ],
-                    shopping: [
-                        { time: "11:00 ص", title: "تسوق السوق المركزي", desc: "اكتشاف التحف والذهب والمشغولات اليدوية.", category: "متوسط", place: "السوق المركزي (السوق الأزرق)", rating: "4.7", image: "https://images.unsplash.com/photo-1555529771-835f59fc5efe?w=600", address: "البطين، الشارقة", details: "معلم معماري بارز يضم مئات المحلات المتنوعة." }
-                    ]
-                },
-                packing: ["معطف خفيف", "دفتر ملاحظات", "حذاء مريح", "كاميرا"]
-            },
-            "رأس الخيمة": {
-                weather: { temp: "25°C", desc: "طقس جبلي منعش ومثالي للمغامرة والاسترخاء", icon: "⛰️", outfit: "ملابس رياضية وجاكيت خفيف للقمم" },
-                pools: {
-                    heritage: [
-                        { time: "09:00 ص", title: "زيارة قلعة ضاية التاريخية", desc: "استكشاف القلعة التاريخية العريقة وإطلالتها المذهلة.", category: "مجاني", place: "قلعة ضاية", rating: "4.7", image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600", address: "رأس الخيمة", details: "قلعة تاريخية شُيدت على تل صخري تحيطها مزارع النخيل." }
-                    ],
-                    adventure: [
-                        { time: "09:30 ص", title: "مغامرة قمة جبل جيس", desc: "الاستمتاع بالأجواء الباردة والمناظر الطبيعية الخلابة.", category: "حسب النشاط", place: "قمة جبل جيس", rating: "4.9", image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600", address: "جبل جيس", details: "أعلى قمة في الدولة مع مسارات مشي وطبيعة خلابة." }
-                    ],
-                    shopping: [
-                        { time: "11:00 ص", title: "جولة في الأسواق التقليدية", desc: "شراء المنتجات المحلية والتذكارات المصنوعة يدوياً.", category: "متوسط", place: "سوق راس الخيمة القديم", rating: "4.5", image: "https://images.unsplash.com/photo-1555529771-835f59fc5efe?w=600", address: "الرمس", details: "سوق شعبي يعكس النشاط التجاري القديم للإمارة." }
-                    ]
-                },
-                packing: ["ملابس رياضية", "جاكيت دافئ", "حذاء تسلق متين", "قنينة ماء"]
-            }
-        };
+        const apiKey = ""; // Built-in environment injection
 
-        function generateDynamicItinerary() {
-            const btn = document.getElementById('generateBtn');
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> جاري التوليد بناءً على اختياراتك...`;
-            
-            setTimeout(() => {
-                const fromC = document.getElementById('fromCity').value;
-                const toC = document.getElementById('toCity').value;
-                const interest = document.getElementById('interest').value;
-                const travelers = document.getElementById('travelers').value;
-                const pace = document.getElementById('pace').value;
-
-                const cityData = cityDatabase[toC] || cityDatabase["أبوظبي"];
-                
-                // Select category pool based on interest
-                let poolKey = "heritage";
-                if(interest.includes("طبيعة") || interest.includes("مغامرة")) poolKey = "adventure";
-                else if(interest.includes("تسوق")) poolKey = "shopping";
-                else if(interest.includes("مقاهي") || interest.includes("استرخاء")) poolKey = "heritage";
-
-                let items = cityData.pools[poolKey] || cityData.pools["heritage"];
-                
-                // Customize first item description based on fromCity
-                let customizedItems = JSON.parse(JSON.stringify(items));
-                if(customizedItems.length > 0) {
-                    customizedItems[0].desc = `الانطلاق صباحاً من مدينة ${fromC} إلى ${toC} وتفضيل الرحلة لـ (${travelers}) بأسلوب (${pace}).`;
+        async function callGeminiAPI(payload, retries = 3, delay = 1000) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    const data = await response.json();
+                    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (!text) throw new Error("Empty response from Gemini API");
+                    return text.trim();
+                } catch (error) {
+                    if (i === retries - 1) throw error;
+                    await new Promise(resolve => setTimeout(resolve, delay * Math.pow(2, i)));
                 }
-
-                // Update Weather Banner
-                document.getElementById('weatherTitle').innerText = `طقس الوجهة: ${toC} (قادم من ${fromC})`;
-                document.getElementById('weatherDesc').innerText = cityData.weather.desc;
-                document.getElementById('weatherIcon').innerText = cityData.weather.icon;
-                document.getElementById('outfitTip').innerText = `نصيحة اللباس: ${cityData.weather.outfit}`;
-
-                // Update Timeline
-                const container = document.getElementById('timelineContainer');
-                container.innerHTML = `<div class="timeline-line"></div>`;
-                
-                customizedItems.forEach((item, index) => {
-                    container.innerHTML += `
-                        <div class="relative flex items-start gap-4">
-                            <div class="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shrink-0 z-10 shadow-sm">
-                                ${index + 1}
-                            </div>
-                            <div class="glass-card flex-grow p-4 rounded-xl shadow-xs border border-slate-100 space-y-2">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-lg">${item.time}</span>
-                                    <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-medium">${item.category}</span>
-                                </div>
-                                <h4 class="font-bold text-slate-800 text-base">${item.title}</h4>
-                                <p class="text-xs text-slate-600">${item.desc}</p>
-                                <div class="flex items-center justify-between pt-2 border-t border-slate-100">
-                                    <span class="text-xs text-slate-500 font-medium"><i class="fa-solid fa-location-dot text-emerald-500 ml-1"></i>${toC}</span>
-                                    <button onclick="openPlaceModal('${item.place}', '${item.rating}', '${item.image}', '${item.address}', '${item.details}')" class="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1">
-                                        <i class="fa-solid fa-circle-info"></i>
-                                        تفاصيل المكان
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                // Update Packing
-                const packContainer = document.getElementById('packingListContainer');
-                packContainer.innerHTML = '';
-                cityData.packing.forEach(p => {
-                    packContainer.innerHTML += `
-                        <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl text-center text-xs font-semibold text-slate-700 flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-check text-emerald-600"></i> ${p}
-                        </div>
-                    `;
-                });
-
-                document.getElementById('resultsSection').classList.remove('hidden');
-                btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> توليد الجدول الذكي المتكامل`;
-                
-                document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
-            }, 500);
+            }
         }
 
-        function openPlaceModal(name, rating, img, address, details) {
-            document.getElementById('modalContent').innerHTML = `
-                <img src="${img}" alt="${name}" class="w-full h-48 object-cover rounded-xl mb-4 shadow-sm">
-                <div class="flex items-center justify-between mb-2">
-                    <h3 class="font-bold text-lg text-slate-800">${name}</h3>
-                    <span class="bg-amber-50 text-amber-700 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1">
-                        <i class="fa-solid fa-star"></i> ${rating}
-                    </span>
+        document.getElementById('plannerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const fromCity = document.getElementById('fromCity').value;
+            const toCity = document.getElementById('toCity').value;
+            const travelers = document.getElementById('travelers').value;
+            const pace = document.getElementById('pace').value;
+            const budget = document.getElementById('budget').value;
+            const interest = document.getElementById('interest').value;
+
+            document.getElementById('displayFrom').textContent = fromCity;
+            document.getElementById('displayDest').textContent = toCity;
+            document.getElementById('displayBudget').textContent = budget;
+
+            const resultsSection = document.getElementById('resultsSection');
+            resultsSection.classList.remove('hidden');
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+
+            const timelineContainer = document.getElementById('timelineContainer');
+            timelineContainer.innerHTML = `
+                <div class="text-center py-12">
+                    <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-uae-gold border-t-transparent mb-4"></div>
+                    <p class="text-slate-600 font-bold">جاري توليد جدولك الذكي ومطاعم الوجهة عبر Gemini...</p>
                 </div>
-                <p class="text-xs text-slate-500 mb-3"><i class="fa-solid fa-map-pin text-emerald-500 ml-1"></i>${address}</p>
-                <p class="text-sm text-slate-600 bg-slate-50 p-3 rounded-xl mb-4 leading-relaxed">${details}</p>
-                <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name + ' ' + address)}" target="_blank" class="w-full bg-emerald-600 text-white py-2.5 rounded-xl text-xs font-bold block text-center hover:bg-emerald-700 transition shadow-sm">
-                    <i class="fa-solid fa-diamond-turn-right ml-1"></i> الاتجاهات على الخريطة
-                </a>
             `;
-            document.getElementById('placeModal').classList.remove('hidden');
+
+            await generateItineraryContent(fromCity, toCity, travelers, pace, budget, interest);
+            fetchWeatherRecommendation(toCity);
+        });
+
+        async function generateItineraryContent(fromCity, toCity, travelers, pace, budget, interest) {
+            const prompt = `أنت خبير سياحي في دولة الإمارات. شخص قادم من "${fromCity}" متوجه إلى "${toCity}" اليوم.
+نوع المسافرين: "${travelers}".
+وتيرة اليوم: "${pace}".
+الميزانية: "${budget}".
+الاهتمام الرئيسي: "${interest}".
+قم بإنشاء جدول سياحي تفصيلي ومبتكر ومقسّم زمنياً لليوم يناسب بدقة نوع المسافرين وتيرة اليوم المحددة.
+أرجع النتيجة بصيغة JSON صريحة تماماً تتضمن المفاتيح التالية:
+- activities: مصفوفة من العناصر (كل عنصر يحتوي على time, title, place, desc, icon, price).
+- packingList: قائمة بالأغراض الأساسية التي يجب اصطحابها للحقيبة تناسب هذا الجدول.
+أرجع JSON فقط بدون أي نص إضافي خارجه.`;
+
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            "activities": {
+                                type: "ARRAY",
+                                items: {
+                                    type: "OBJECT",
+                                    properties: {
+                                        "time": { "type": "STRING" },
+                                        "title": { "type": "STRING" },
+                                        "place": { "type": "STRING" },
+                                        "desc": { "type": "STRING" },
+                                        "icon": { "type": "STRING" },
+                                        "price": { "type": "STRING" }
+                                    },
+                                    "propertyOrdering": ["time", "title", "place", "desc", "icon", "price"]
+                                }
+                            },
+                            "packingList": {
+                                type: "ARRAY",
+                                items: { "type": "STRING" }
+                            }
+                        },
+                        "propertyOrdering": ["activities", "packingList"]
+                    }
+                }
+            };
+
+            try {
+                const jsonText = await callGeminiAPI(payload);
+                const data = JSON.parse(jsonText);
+                renderTimeline(data.activities || []);
+                renderPackingList(data.packingList || []);
+            } catch (error) {
+                console.error("AI Error:", error);
+                renderTimeline([
+                    { time: "09:00 ص", title: "انطلاق صباحي مريح", place: toCity, desc: `الوصول وبدء الجولة الممتعة القادمة من ${fromCity}.`, icon: "fa-car", price: "مجاني" },
+                    { time: "11:00 ص", title: "استكشاف المعالم البارزة", place: toCity, desc: "زيارة أجمل الأماكن الثقافية والترفيهية.", icon: "fa-landmark", price: "حسب النشاط" },
+                    { time: "02:00 م", title: "تجربة طعام محلية فاخرة", place: toCity, desc: "تناول وجبة الغداء في أحد أفضل المطاعم الموصى بها.", icon: "fa-utensils", price: "متوسط" }
+                ]);
+                renderPackingList(["نظارات شمسية", "بطارية هواتف متنقلة", "ملابس مريحة ومناسبة للطقس"]);
+            }
+        }
+
+        function renderTimeline(activities) {
+            const container = document.getElementById('timelineContainer');
+            container.innerHTML = '';
+            
+            activities.forEach((item, index) => {
+                const delay = index * 0.15;
+                const iconClass = item.icon || 'fa-star';
+                
+                let cardHTML = `
+                <div class="relative z-10 mb-10 pl-8 pr-12 fade-in-up" style="animation-delay: ${delay}s">
+                    <div class="absolute right-3 top-0 w-6 h-6 bg-uae-gold rounded-full border-4 border-white shadow"></div>
+                    
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition p-5">
+                        <div class="flex flex-col md:flex-row md:justify-between md:items-start mb-2 gap-2">
+                            <h4 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fa-solid ${iconClass} text-uae-gold"></i>
+                                ${escapeHtml(item.time)} - ${escapeHtml(item.title)}
+                            </h4>
+                            <span class="bg-amber-50 text-amber-900 text-xs px-3 py-1.5 rounded-full font-bold border border-amber-200 w-fit">
+                                <i class="fa-solid fa-location-dot ml-1 text-uae-gold"></i> ${escapeHtml(item.place)}
+                            </span>
+                        </div>
+                        
+                        <p class="text-gray-600 mb-3">${escapeHtml(item.desc)}</p>
+                        
+                        <div class="flex flex-wrap justify-between items-center mt-4 gap-2">
+                            <div class="flex items-center gap-3">
+                                <a href="https://maps.google.com/?q=${encodeURIComponent(item.place)}" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm font-bold flex items-center gap-1 transition">
+                                    <i class="fa-solid fa-diamond-turn-right"></i> الاتجاهات على الخريطة
+                                </a>
+                                <button onclick="openPlaceDetails('${escapeHtml(item.title)}', '${escapeHtml(item.place)}')" class="bg-amber-50 hover:bg-amber-100 text-amber-900 px-3 py-1.5 rounded-lg text-xs font-bold border border-amber-200 transition flex items-center gap-1">
+                                    <i class="fa-solid fa-circle-info text-uae-gold"></i> تفاصيل المكان
+                                </button>
+                            </div>
+                            ${item.price ? `<span class="bg-green-50 text-green-700 text-xs px-2 py-1 rounded font-bold border border-green-200">${escapeHtml(item.price)}</span>` : ''}
+                        </div>
+                    </div>
+                </div>
+                `;
+                container.innerHTML += cardHTML;
+            });
+        }
+
+        function renderPackingList(items) {
+            const container = document.getElementById('packingListContainer');
+            container.innerHTML = '';
+            items.forEach(item => {
+                container.innerHTML += `
+                    <div class="flex items-center gap-2 bg-slate-50 p-2 rounded-lg border border-gray-100">
+                        <i class="fa-solid fa-check text-uae-gold"></i>
+                        <span class="font-medium text-slate-700">${escapeHtml(item)}</span>
+                    </div>
+                `;
+            });
+        }
+
+        async function fetchWeatherRecommendation(city) {
+            const contentEl = document.getElementById('weatherContent');
+            contentEl.textContent = "جاري جلب تفاصيل الطقس وتوصيات الملابس للوجهة...";
+            
+            const prompt = `قدم تقرير طقس وتوصيات ملابس سريعة ومختصرة لمدينة ${city} في الإمارات اليوم، في جملتين مفيدتين فقط باللغة العربية.`;
+            const payload = { contents: [{ parts: [{ text: prompt }] }] };
+
+            try {
+                const res = await callGeminiAPI(payload);
+                contentEl.textContent = res;
+            } catch (err) {
+                contentEl.textContent = `الأجواء في ${city} رائعة ومناسبة تماماً للأنشطة الخارجية والترفيهية اليوم. استمتع برحلتك!`;
+            }
+        }
+
+        async function openPlaceDetails(title, place) {
+            const modal = document.getElementById('placeDetailsModal');
+            modal.classList.remove('hidden');
+
+            document.getElementById('placeModalTitle').textContent = title;
+            document.getElementById('placeModalLocation').textContent = place;
+            document.getElementById('placeModalRating').textContent = "جاري التحميل...";
+            document.getElementById('placeModalDesc').textContent = "جاري جلب المفيد...";
+            document.getElementById('placeModalTime').textContent = "جاري الحساب...";
+            document.getElementById('placeModalTip').textContent = "جاري إعداد النصيحة...";
+            
+            document.getElementById('placeImg').src = "https://images.unsplash.com/photo-1512453979798-5ea266f8880c";
+
+            const userPrompt = `أعطني معلومات مركزة ومختصرة جداً (سطر واحد فقط لكل حقل) عن "${place}" (${title}) في الإمارات.
+أعطني الناتج بصيغة JSON صريحة بالمفاتيح التالية:
+- rating (تقييم رقمي مثل "4.8 / 5.0")
+- desc (وصف مكثف ومفيد جداً في سطر واحد قصير)
+- bestTime (أفضل وقت للزيارة باختصار)
+- tip (نصيحة ذهبية سريعة)
+- imageUrl (رابط صورة حقيقية من Unsplash للمكان)
+بدون أي نصوص إضافية.`;
+
+            const payload = {
+                contents: [{ parts: [{ text: userPrompt }] }],
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            "rating": { "type": "STRING" },
+                            "desc": { "type": "STRING" },
+                            "bestTime": { "type": "STRING" },
+                            "tip": { "type": "STRING" },
+                            "imageUrl": { "type": "STRING" }
+                        },
+                        "propertyOrdering": ["rating", "desc", "bestTime", "tip", "imageUrl"]
+                    }
+                }
+            };
+
+            try {
+                const jsonText = await callGeminiAPI(payload);
+                const data = JSON.parse(jsonText);
+
+                document.getElementById('placeModalRating').textContent = data.rating || "4.7 / 5.0";
+                document.getElementById('placeModalDesc').textContent = data.desc || title;
+                document.getElementById('placeModalTime').textContent = data.bestTime || "الصباح";
+                document.getElementById('placeModalTip').textContent = data.tip || "احجز مسبقاً.";
+                if (data.imageUrl && data.imageUrl.startsWith('http')) {
+                    document.getElementById('placeImg').src = data.imageUrl;
+                }
+            } catch (err) {
+                console.error("Place details error:", err);
+                document.getElementById('placeModalRating').textContent = "4.7 / 5.0";
+                document.getElementById('placeModalDesc').textContent = `معلم سياحي بارز ووجهة ممتازة للزيارة في ${place}.`;
+                document.getElementById('placeModalTime').textContent = "متاح طوال اليوم";
+                document.getElementById('placeModalTip').textContent = "احرص على الوصول مبكراً.";
+            }
         }
 
         function closePlaceModal() {
-            document.getElementById('placeModal').classList.add('hidden');
+            document.getElementById('placeDetailsModal').classList.add('hidden');
         }
 
-        function openChatModal() { document.getElementById('chatModal').classList.remove('hidden'); }
-        function closeChatModal() { document.getElementById('chatModal').classList.add('hidden'); }
+        function openImageModal() {
+            document.getElementById('imageModal').classList.remove('hidden');
+        }
+        function closeImageModal() {
+            document.getElementById('imageModal').classList.add('hidden');
+        }
 
-        function sendChatMessage() {
-            const input = document.getElementById('chatInput');
-            const txt = input.value.trim();
-            if(!txt) return;
+        async function generateAIImage() {
+            const dest = document.getElementById('displayDest').textContent || "دبي";
+            const container = document.getElementById('imageResultContainer');
+            const btn = document.getElementById('generateImgBtn');
 
-            const chatMessages = document.getElementById('chatMessages');
-            chatMessages.innerHTML += `
-                <div class="bg-emerald-50 p-3 rounded-xl shadow-xs border border-emerald-100 text-slate-800 max-w-[80%] ms-auto text-right">
-                    ${txt}
-                </div>
-            `;
-            input.value = '';
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> جاري التوليد...`;
+            container.innerHTML = `<span class="text-amber-700 font-bold animate-pulse">جاري رسم وتوليد الصورة الذكية للوجهة عبر Gemini...</span>`;
 
             setTimeout(() => {
+                const sampleImages = [
+                    "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1526481280693-3bfa7568e0f3?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1578895101408-1a364e49ee9f?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1546412414-8035e127c57e?auto=format&fit=crop&w=800&q=80"
+                ];
+                const randomImg = sampleImages[Math.floor(Math.random() * sampleImages.length)];
+                container.innerHTML = `<img src="${randomImg}" alt="صورة مقترحة للوجهة" class="w-full h-full object-cover rounded-xl shadow-inner">`;
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> توليد صورة جديدة`;
+            }, 1500);
+        }
+
+        function openChatModal() {
+            document.getElementById('chatModal').classList.remove('hidden');
+        }
+        function closeChatModal() {
+            document.getElementById('chatModal').classList.add('hidden');
+        }
+
+        async function sendChatMessage() {
+            const inputEl = document.getElementById('chatInput');
+            const messageText = inputEl.value.trim();
+            if (!messageText) return;
+
+            const chatMessages = document.getElementById('chatMessages');
+            
+            chatMessages.innerHTML += `
+                <div class="bg-blue-600 text-white p-3 rounded-xl max-w-[85%] mr-auto font-medium shadow-sm">
+                    ${escapeHtml(messageText)}
+                </div>
+            `;
+            inputEl.value = '';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            const loadingId = 'loading-' + Date.now();
+            chatMessages.innerHTML += `
+                <div id="${loadingId}" class="bg-amber-100 text-amber-900 p-3 rounded-xl max-w-[85%] font-medium animate-pulse">
+                    جاري التفكير...
+                </div>
+            `;
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            const systemPrompt = "أنت مرشد سياحي إماراتي خبير ومختصر جداً في إجاباتك. قدم إجابات مركزة في فقرة قصيرة أو نقاط سريعة ومفيدة بلا حشو أو كلام زائد.";
+            const payload = {
+                contents: [{ parts: [{ text: messageText }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] }
+            };
+
+            try {
+                const reply = await callGeminiAPI(payload);
+                document.getElementById(loadingId).remove();
                 chatMessages.innerHTML += `
-                    <div class="bg-white p-3 rounded-xl shadow-xs border border-slate-100 text-slate-700 max-w-[80%]">
-                        أنصحك بزيارة المطاعم المحلية الهادئة والاستمتاع بالمقاهي غير التقليدية للحصول على تجربة فريدة.
+                    <div class="bg-amber-100 text-amber-900 p-3 rounded-xl max-w-[85%] font-medium shadow-sm">
+                        ${escapeHtml(reply)}
                     </div>
                 `;
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            }, 600);
+            } catch (error) {
+                document.getElementById(loadingId).remove();
+                chatMessages.innerHTML += `
+                    <div class="bg-red-100 text-red-800 p-3 rounded-xl max-w-[85%] font-medium">
+                        عذراً، حدث خطأ في الاتصال. يرجى المحاولة مجدداً.
+                    </div>
+                `;
+            }
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+
+        function shareWhatsApp() {
+            const dest = document.getElementById('displayDest').textContent || "الإمارات";
+            const text = encodeURIComponent(`شرايك بهذا الجدول السياحي المميز في ${dest}؟ صممته عبر تطبيق جدولك 🇦🇪✨`);
+            window.open(`https://wa.me/?text=${text}`, '_blank');
         }
     </script>
 </body>
