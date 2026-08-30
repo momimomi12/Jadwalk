@@ -104,13 +104,13 @@
                     <select id="interest" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
                         <option value="استكشاف وتراث">استكشاف وتراث محلي</option>
                         <option value="طبيعة ومغامرة">طبيعة ومغامرة</option>
-                        <option value="تسوق وتر́فيه">تسوق وترفيه</option>
+                        <option value="تسوق وترفيه">تسوق وترفيه</option>
                         <option value="استرخاء ومقاهي">مقاهي ومطاعم مميزة</option>
                     </select>
                 </div>
             </div>
 
-            <button onclick="generateItinerary()" id="generateBtn" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold p-3.5 rounded-xl shadow-lg hover:from-emerald-700 hover:to-teal-700 transition flex items-center justify-center gap-2">
+            <button onclick="generateDynamicItinerary()" id="generateBtn" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold p-3.5 rounded-xl shadow-lg hover:from-emerald-700 hover:to-teal-700 transition flex items-center justify-center gap-2">
                 <i class="fa-solid fa-wand-magic-sparkles"></i>
                 توليد الجدول الذكي المتكامل
             </button>
@@ -125,7 +125,7 @@
                     <div class="text-4xl" id="weatherIcon">☀️</div>
                     <div>
                         <h3 class="font-bold text-lg" id="weatherTitle">الطقس والملابس المقترحة</h3>
-                        <p class="text-sm text-emerald-100" id="weatherDesc">جاري تحميل حالة الطقس...</p>
+                        <p class="text-sm text-emerald-100" id="weatherDesc">جاري تحديث حالة الطقس...</p>
                     </div>
                 </div>
                 <div class="bg-white/10 backdrop-blur-md px-4 py-2 rounded-xl text-xs font-medium border border-white/20" id="outfitTip">
@@ -200,66 +200,116 @@
     </footer>
 
     <script>
-        const database = {
+        const cityDatabase = {
             "أبوظبي": {
-                weather: { temp: "28°C", desc: "مشمس ومناسب جداً للأنشطة الخارجية", icon: "☀️", outfit: "نظارة شمسية وملابس قطنية خفيفة" },
-                items: [
-                    { time: "09:00 ص", title: "انطلاق صباحي مميز", desc: "الوصول من مدينة الانطلاق وبدء الجولة في معالم العاصمة البارزة.", category: "مجاني", place: "قصر الوطن", rating: "4.8", image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600", address: "قصر الوطن، أباظبي", details: "تحفة معمارية وثقافية تبرز التراث العريق لدولة الإمارات." },
-                    { time: "01:00 م", title: "استراحة غداء محلية", desc: "تجربة مأكولات شعبية ومحلية في مطعم غير تقليدي.", category: "حسب الطلب", place: "مطبخ البيت المتوحد", rating: "4.6", image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600", address: "الممتاز، أبوظبي", details: "أطباق إماراتية أصيلة بأجواء منزلية دافئة." },
-                    { time: "04:00 ص", title: "استكشاف الطبيعة والهدوء", desc: "جولة هادئة على شواطئ جزيرة السعديات والاسترخاء.", category: "متوسط", place: "ممشى السعديات", rating: "4.7", image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600", address: "جزيرة السعديات", details: "ممشى خلاب يطل على المياه الفيروزية الصافية والطبيعة البحرية." }
-                ],
-                packing: ["نظارة شمسية", "قبعة أنيقة", "عباءة خفيفة", "كاميرا توثيق"]
+                weather: { temp: "28°C", desc: "أجواء مشمسة ومثالية للاستكشاف الخارجي", icon: "☀️", outfit: "نظارة شمسية وملابس قطنية مريحة" },
+                pools: {
+                    heritage: [
+                        { time: "09:00 ص", title: "انطلاق ترحيبي وقصر الوطن", desc: "بدء الجولة القادمة واستكشاف قصر الوطن والمعالم الثقافية.", category: "مجاني", place: "قصر الوطن", rating: "4.8", image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600", address: "كورنيش أبوظبي", details: "تحفة معمارية تبرز الإرث الحضاري والثقافي العريق." },
+                        { time: "01:00 م", title: "غداء محلي فريد", desc: "تجربة أطباق إماراتية أصيلة في مطعم محلي مميز بعيداً عن الوجبات السريعة.", category: "متوسط", place: "مطعم البيت المتوحد", rating: "4.6", image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600", address: "الممتاز، أبوظبي", details: "أطباق شعبية محلية محضرة بأجواء عائلية دافئة." },
+                        { time: "04:30 م", title: "جولة هادئة على ممشى السعديات", desc: "الاستمتاع بالمياه الصافية والمسارات البحرية الخلابة.", category: "مجاني", place: "ممشى السعديات", rating: "4.7", image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600", address: "جزيرة السعديات", details: "ممشى ساحلي يتيح لك الاسترخاء وإطلالات ساحرة على الخليج." }
+                    ],
+                    adventure: [
+                        { time: "09:30 ص", title: "مغامرة جزيرة ياس المائية", desc: "قضاء وقت ممتع في الألعاب المائية والتشويق.", category: "تذكرة خاصة", place: "ياس ووتروورلد", rating: "4.8", image: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600", address: "جزيرة ياس", details: "مدينة مائية عالمية تضم ألعاباً ترفيهية فريدة ومثيرة." },
+                        { time: "01:30 م", title: "استراحة غداء في ياس مارينا", desc: "تناول وجبة شهية مع إطلالة مباشرة على اليخوت الفاخرة.", category: "متوسط", place: "مطعم مارينا بيسترو", rating: "4.5", image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600", address: "ياس مارينا", details: "أجواء حيوية وخيارات طعام ممتازة ومحلية." },
+                        { time: "05:00 م", title: "إثارة سرعة الكارتينج", desc: "تحدي الأصدقاء في سباقات الحلبة الممتعة.", category: "متوسط", place: "حلبة مرسى ياس", rating: "4.9", image: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=600", address: "جزيرة ياس", details: "تجربة سباق احترافية وممتعة لمحبي الحماس." }
+                    ],
+                    shopping: [
+                        { time: "10:00 ص", title: "جولة تسوق في الكورنيش", desc: "استكشاف أحدث المتاجر والأسواق العصرية.", category: "حسب الشراء", place: "عالم الروائع للتسوق", rating: "4.5", image: "https://images.unsplash.com/photo-1555529771-835f59fc5efe?w=600", address: "أبوظبي", details: "وجهة مميزة لتسوق المنتجات العصرية والهدايا التذكارية." },
+                        { time: "01:30 م", title: "استراحة قهوة مختصة", desc: "تذوق أرقى المشروبات في مقهى محلي هادئ.", category: "متوسط", place: "مقهى أرابيكا الكورنيش", rating: "4.7", image: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=600", address: "الكورنيش", details: "محمصة ومقهى يشتهر بتقديم أفضل أنواع القهوة المختصة." }
+                    ]
+                },
+                packing: ["نظارة شمسية", "قبعة أنيقة", "ملابس قطنية خفيفة", "كاميرا توثيق"]
             },
             "دبي": {
-                weather: { temp: "30°C", desc: "أجواء مشمسة وحيوية مثالية للتجول", icon: "🌤️", outfit: "ملابس كاجوال مريحة مع حذاء للمشي" },
-                items: [
-                    { time: "09:30 ص", title: "عبور التاريخ في الخور", desc: "جولة بأبراج البستكية التراثية وركوب العبرة التقليدية.", category: "رمزي", place: "حي الفهيدي التاريخي", rating: "4.7", image: "https://images.unsplash.com/photo-1580674684081-7617fbf3d745?w=600", address: "بر دبي، دبي", details: "أزقة قديمة تعكس عبق الماضي العريق وتجارب فنية فريدة." },
-                    { time: "01:30 م", title: "غداء شعبي أصيل", desc: "تجربة لقيمات ومأكولات إماراتية قديمة في مقهى تراثي.", category: "متوسط", place: "مقهى الشيخ محمد للتواصل الحضاري", rating: "4.8", image: "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=600", address: "الفهيدي، دبي", details: "يقدم تجربة ضيافة إماراتية أصيلة مع وجبات محلية ممتازة." },
-                    { time: "05:00 م", title: "غروب ساحر على الشاطئ", desc: "الاستمتاع بنسيم البحر وإطلالة برج العرب في كايت بيتش.", category: "مجاني", place: "كايت بيتش", rating: "4.9", image: "https://images.unsplash.com/photo-1518684079-3c830dcef090?w=600", address: "جميرا، دبي", details: "وجهة حيوية وممشى رائع لمحبي الأجواء البحرية المفتوحة." }
-                ],
+                weather: { temp: "30°C", desc: "أجواء مشمسة وحيوية مثالية للجولات المفتوحة", icon: "🌤️", outfit: "ملابس كاجوال خفيفة وحذاء مشي مريح" },
+                pools: {
+                    heritage: [
+                        { time: "09:00 ص", title: "عبور التاريخ في الفهيدي", desc: "استكشاف الأزقة القديمة وركوب العبرة في خور دبي.", category: "رمزي", place: "حي الفهيدي التاريخي", rating: "4.7", image: "https://images.unsplash.com/photo-1580674684081-7617fbf3d745?w=600", address: "بر دبي", details: "حي تراثي يعبق باريج الماضي وعمارة البراجيل التقليدية." },
+                        { time: "01:00 م", title: "غداء شعبي في مقهى تراثي", desc: "تناول وجبة إماراتية تقليدية أصيلة.", category: "متوسط", place: "مقهى الشيخ محمد للتواصل", rating: "4.8", image: "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=600", address: "البستكية", details: "يجسد أصالة الضيافة الإماراتية والوجبات المحلية." },
+                        { time: "04:30 م", title: "جولة سوق الذهب والتوابل", desc: "استنشاق عبق التوابل الشرقية وتألق الأسواق القديمة.", category: "مجاني", place: "سوق الذهب القديم", rating: "4.6", image: "https://images.unsplash.com/photo-1578895101408-1a36b8344351?w=600", address: "ديرة، دبي", details: "الأسواق التقليدية النابضة بالحياة والتاريخ." }
+                    ],
+                    adventure: [
+                        { time: "09:30 ص", title: "مغامرة سفاري الصحراء", desc: "ركوب السيارات الرباعية وتجربة الكثبان الذهبية.", category: "تذكرة خاصة", place: "صحراء دبي الحمراء", rating: "4.9", image: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=600", address: "دبي الصحراوية", details: "تجربة مغامرة صحراوية لا تُنسى مع الأنشطة التراثية." },
+                        { time: "01:30 م", title: "وجبة الغداء البدوية", desc: "تناول مأكولات تقليدية في مخيم صحراوي مجهز.", category: "متوسط", place: "مخيم الكثبان الذهبية", rating: "4.7", image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=600", address: "دبي", details: "وجبات شهية ومشاوي محلية بأجواء صحراوية ساحرة." }
+                    ],
+                    shopping: [
+                        { time: "10:00 ص", title: "تسوق حي السمر العطِر", desc: "اكتشاف أحدث صيحات الموضة والمتاجر المستقلة.", category: "متوسط", place: "سيتي ووك", rating: "4.8", image: "https://images.unsplash.com/photo-1555529771-835f59fc5efe?w=600", address: "الجميرا", details: "وجهة مفتوحة ومميزة للتسوق والمقاهي العصرية." }
+                    ]
+                },
                 packing: ["واقي شمس", "حذاء مشي مريح", "نظارة شمسية", "حقيبة ظهر خفيفة"]
             },
             "الشارقة": {
-                weather: { temp: "27°C", desc: "طقس لطيف ومنعش يناسب العائلات", icon: "🌥️", outfit: "سترة خفيفة وملابس محتشمة مريحة" },
-                items: [
-                    { time: "10:00 ص", title: "جولة في قلب الثقافة", desc: "استكشاف المتاحف التراثية والأسواق القديمة.", category: "مجاني", place: "قلب الشارقة", rating: "4.6", image: "https://images.unsplash.com/photo-1578895101408-1a36b8344351?w=600", address: "الشارقة القديمة", details: "أكبر مشروع ترميم تراثي في المنطقة يعكس أصالة الماضي." },
-                    { time: "01:00 م", title: "استراحة غداء تقليدية", desc: "تناول وجبة مجبوس محلية في مطعم شعبي عريق.", category: "متوسط", place: "مطعم الشارقة الشعبي", rating: "4.5", image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=600", address: "سوق الشارقة", details: "أطباق محلية تقليدية تحضر بعناية فائقة." },
-                    { time: "04:00 م", title: "أجواء بحرية في المجاز", desc: "الاستمتاع بالإطلالة المائية والبحيرة الخلابة.", category: "مجاني", place: "واجهة المجاز المائية", rating: "4.7", image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600", address: "بحيرة خالد، الشارقة", details: "وجهة ترفيهية متكاملة تناسب العائلات والأفراد." }
-                ],
+                weather: { temp: "27°C", desc: "طقس لطيف ومنعش يناسب العصور الثقافية", icon: "🌥️", outfit: "سترة خفيفة وملابس محتشمة مريحة" },
+                pools: {
+                    heritage: [
+                        { time: "09:30 ص", title: "جولة قلب الشارقة التراثي", desc: "استكشاف المتاحف والأسواق القديمة المرممة.", category: "مجاني", place: "قلب الشارقة", rating: "4.6", image: "https://images.unsplash.com/photo-1578895101408-1a36b8344351?w=600", address: "الشارقة القديمة", details: "أكبر مشروع تراثي يروي قصة التطور التاريخي للإمارة." },
+                        { time: "01:00 م", title: "استراحة غداء محلية", desc: "تناول وجبة مجبوس إماراتية في مطعم عريق.", category: "متوسط", place: "مطعم الشارقة الشعبي", rating: "4.5", image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=600", address: "السوق المركزي", details: "أطباق محلية تقليدية تحضر بعناية فائقة." }
+                    ],
+                    adventure: [
+                        { time: "10:00 ص", title: "استكشاف حديقة الشارقة للحياة البرية", desc: "مشاهدة الحيوانات العربية الأصيلة في بيئتها الطبيعية.", category: "رمزي", place: "سفاري الشارقة", rating: "4.8", image: "https://images.unsplash.com/photo-1534567153574-2b12153a87f0?w=600", address: "البردي، الشارقة", details: "أكبر سفاري خارج أفريقيا تضم تنوعاً حيوانياً وبيئياً مذهلاً." }
+                    ],
+                    shopping: [
+                        { time: "11:00 ص", title: "تسوق السوق المركزي", desc: "اكتشاف التحف والذهب والمشغولات اليدوية.", category: "متوسط", place: "السوق المركزي (السوق الأزرق)", rating: "4.7", image: "https://images.unsplash.com/photo-1555529771-835f59fc5efe?w=600", address: "البطين، الشارقة", details: "معلم معماري بارز يضم مئات المحلات المتنوعة." }
+                    ]
+                },
                 packing: ["معطف خفيف", "دفتر ملاحظات", "حذاء مريح", "كاميرا"]
             },
             "رأس الخيمة": {
-                weather: { temp: "25°C", desc: "طقس جبلي منعش ومثالي للمغامرة", icon: "⛰️", outfit: "ملابس رياضية وجاكيت خفيف" },
-                items: [
-                    { time: "09:00 ص", title: "مغامرة قمة الجبل", desc: "استكشاف الطبيعة الجبلية الرائعة في جبل جيس.", category: "حسب النشاط", place: "قمة جبل جيس", rating: "4.9", image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600", address: "جبل جيس، رأس الخيمة", details: "أعلى قمة جبلية في الدولة بإطلالات خلابة وأجواء باردة." },
-                    { time: "01:30 م", title: "غداء ريفي وسط الجبال", desc: "تناول طعام محلي في استراحة جبلية فريدة.", category: "متوسط", place: "استراحة الوعب", rating: "4.5", image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600", address: "رأس الخيمة", details: "مطعم محلي يقدّم أكلات شعبية بجلسات جبلية ساحرة." }
-                ],
+                weather: { temp: "25°C", desc: "طقس جبلي منعش ومثالي للمغامرة والاسترخاء", icon: "⛰️", outfit: "ملابس رياضية وجاكيت خفيف للقمم" },
+                pools: {
+                    heritage: [
+                        { time: "09:00 ص", title: "زيارة قلعة ضاية التاريخية", desc: "استكشاف القلعة التاريخية العريقة وإطلالتها المذهلة.", category: "مجاني", place: "قلعة ضاية", rating: "4.7", image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600", address: "رأس الخيمة", details: "قلعة تاريخية شُيدت على تل صخري تحيطها مزارع النخيل." }
+                    ],
+                    adventure: [
+                        { time: "09:30 ص", title: "مغامرة قمة جبل جيس", desc: "الاستمتاع بالأجواء الباردة والمناظر الطبيعية الخلابة.", category: "حسب النشاط", place: "قمة جبل جيس", rating: "4.9", image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600", address: "جبل جيس", details: "أعلى قمة في الدولة مع مسارات مشي وطبيعة خلابة." }
+                    ],
+                    shopping: [
+                        { time: "11:00 ص", title: "جولة في الأسواق التقليدية", desc: "شراء المنتجات المحلية والتذكارات المصنوعة يدوياً.", category: "متوسط", place: "سوق راس الخيمة القديم", rating: "4.5", image: "https://images.unsplash.com/photo-1555529771-835f59fc5efe?w=600", address: "الرمس", details: "سوق شعبي يعكس النشاط التجاري القديم للإمارة." }
+                    ]
+                },
                 packing: ["ملابس رياضية", "جاكيت دافئ", "حذاء تسلق متين", "قنينة ماء"]
             }
         };
 
-        let currentActiveItem = null;
-
-        function generateItinerary() {
+        function generateDynamicItinerary() {
             const btn = document.getElementById('generateBtn');
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> جاري التوليد...`;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> جاري التوليد بناءً على اختياراتك...`;
             
             setTimeout(() => {
                 const fromC = document.getElementById('fromCity').value;
                 const toC = document.getElementById('toCity').value;
-                const data = database[toC] || database["أبوظبي"];
+                const interest = document.getElementById('interest').value;
+                const travelers = document.getElementById('travelers').value;
+                const pace = document.getElementById('pace').value;
 
-                // Update Weather
-                document.getElementById('weatherTitle').innerText = `طقس الوجهة: ${toC} (منطلق من ${fromC})`;
-                document.getElementById('weatherDesc').innerText = data.weather.desc;
-                document.getElementById('weatherIcon').innerText = data.weather.icon;
-                document.getElementById('outfitTip').innerText = `نصيحة اللباس: ${data.weather.outfit}`;
+                const cityData = cityDatabase[toC] || cityDatabase["أبوظبي"];
+                
+                // Select category pool based on interest
+                let poolKey = "heritage";
+                if(interest.includes("طبيعة") || interest.includes("مغامرة")) poolKey = "adventure";
+                else if(interest.includes("تسوق")) poolKey = "shopping";
+                else if(interest.includes("مقاهي") || interest.includes("استرخاء")) poolKey = "heritage";
+
+                let items = cityData.pools[poolKey] || cityData.pools["heritage"];
+                
+                // Customize first item description based on fromCity
+                let customizedItems = JSON.parse(JSON.stringify(items));
+                if(customizedItems.length > 0) {
+                    customizedItems[0].desc = `الانطلاق صباحاً من مدينة ${fromC} إلى ${toC} وتفضيل الرحلة لـ (${travelers}) بأسلوب (${pace}).`;
+                }
+
+                // Update Weather Banner
+                document.getElementById('weatherTitle').innerText = `طقس الوجهة: ${toC} (قادم من ${fromC})`;
+                document.getElementById('weatherDesc').innerText = cityData.weather.desc;
+                document.getElementById('weatherIcon').innerText = cityData.weather.icon;
+                document.getElementById('outfitTip').innerText = `نصيحة اللباس: ${cityData.weather.outfit}`;
 
                 // Update Timeline
                 const container = document.getElementById('timelineContainer');
                 container.innerHTML = `<div class="timeline-line"></div>`;
                 
-                data.items.forEach((item, index) => {
+                customizedItems.forEach((item, index) => {
                     container.innerHTML += `
                         <div class="relative flex items-start gap-4">
                             <div class="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shrink-0 z-10 shadow-sm">
@@ -287,7 +337,7 @@
                 // Update Packing
                 const packContainer = document.getElementById('packingListContainer');
                 packContainer.innerHTML = '';
-                data.packing.forEach(p => {
+                cityData.packing.forEach(p => {
                     packContainer.innerHTML += `
                         <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl text-center text-xs font-semibold text-slate-700 flex items-center justify-center gap-2">
                             <i class="fa-solid fa-check text-emerald-600"></i> ${p}
@@ -298,9 +348,8 @@
                 document.getElementById('resultsSection').classList.remove('hidden');
                 btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> توليد الجدول الذكي المتكامل`;
                 
-                // Scroll smoothly to results
                 document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
-            }, 600);
+            }, 500);
         }
 
         function openPlaceModal(name, rating, img, address, details) {
@@ -345,11 +394,11 @@
             setTimeout(() => {
                 chatMessages.innerHTML += `
                     <div class="bg-white p-3 rounded-xl shadow-xs border border-slate-100 text-slate-700 max-w-[80%]">
-                        أهلاً بك! أنصحك بزيارة المقاهي المحلية الهادئة وتجنب الزحام في أوقات الذروة للاستمتاع برحلتك بالكامل.
+                        أنصحك بزيارة المطاعم المحلية الهادئة والاستمتاع بالمقاهي غير التقليدية للحصول على تجربة فريدة.
                     </div>
                 `;
                 chatMessages.scrollTop = chatMessages.scrollHeight;
-            }, 800);
+            }, 600);
         }
     </script>
 </body>
